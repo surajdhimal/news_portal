@@ -6,12 +6,13 @@
     </div>
     <ul class="sidebar-menu">
         <li class="menu-header">Main</li>
-        <li class="dropdown active">
+        <li class="dropdown {{ Request::routeIs('dashboard') ? 'active' : '' }}">
             <a href="{{ route('dashboard') }}" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
         </li>
-        <li class="dropdown">
-            <a href="{{ route('admin.company.index') }}" class="nav-link"><i class="
-fas fa-building"></i><span>Company</span></a>
+        <li class="dropdown {{ Request::routeIs('admin.company.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.company.index') }}" class="nav-link"><i
+                    class="fas fa-building"></i><span>Company</span></a>
+        </li>
         </li>
         <li class="dropdown">
             <a href="{{ route('dashboard') }}" class="nav-link"><i class="
