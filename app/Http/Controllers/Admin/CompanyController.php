@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use Illuminate\Http\Request;
 
 class CompanyController extends Controller
@@ -12,7 +13,9 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        return view('admin.company.index');
+        // go to index view admin.company.index
+        $company = Company::first();
+        return view("admin.company.index", compact('company'));
     }
 
     /**
@@ -20,6 +23,7 @@ class CompanyController extends Controller
      */
     public function create()
     {
+        // go to create view admin.company.create
         return view("admin.company.create");
     }
 
@@ -28,7 +32,32 @@ class CompanyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // save data
+        $request->validate([
+            "name" => "required",
+            "email" => "required",
+            "phone" => "required",
+            "address" => "required",
+            "logo" => "required|max:2048",
+        ]);
+
+        $file = $request->logo;
+        if ($file) {
+            $newName = time() . "." . $file->getClientOriginalExtension();
+            $file->move('images', $newName);
+        }
+
+        Company::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "phone" => $request->phone,
+            "address" => $request->address,
+            "facebook" => $request->facebook,
+            "youtube" => $request->youtube,
+            "logo" => "images/" . $newName
+        ]);
+
+        return redirect()->route("admin.company.index");
     }
 
     /**
@@ -44,7 +73,9 @@ class CompanyController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        // go to edit view
+        $company = Company::find($id);
+        return view("admin.company.edit", compact('company'));
     }
 
     /**
@@ -52,7 +83,44 @@ class CompanyController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // update data
+        $request->validate([
+            "name" => "required",
+            "email" => "required",
+            "phone" => "required",
+            "address" => "required",
+        ]);
+
+        $company = Company::find($id);
+        $file = $request->logo;
+        if ($file) {
+            $newName = time() . "." . $file->getClientOriginalExtension();
+            $file->move('images', $newName);
+            unlink($company->logo);
+        }
+
+        if ($file) {
+            $company->update([
+                "name" => $request->name,
+                "email" => $request->email,
+                "phone" => $request->phone,
+                "address" => $request->address,
+                "facebook" => $request->facebook,
+                "youtube" => $request->youtube,
+                "logo" => "images/" . $newName
+            ]);
+        } else {
+            $company->update([
+                "name" => $request->name,
+                "email" => $request->email,
+                "phone" => $request->phone,
+                "address" => $request->address,
+                "facebook" => $request->facebook,
+                "youtube" => $request->youtube
+            ]);
+        }
+
+        return redirect()->back();
     }
 
     /**
@@ -60,6 +128,11 @@ class CompanyController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // delete data
+        $company = Company::find($id);
+        unlink($company->logo);
+        $company->delete();
+        return redirect()->back();
     }
+
 }
