@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="{{ asset('frontend/style.css') }}">
 </head>
 <body>
-    <header></header>
+    <header>
+        <x-frontend-navbar/>
+    </header>
 
     <main>
         {{ $slot }}

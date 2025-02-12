@@ -40,7 +40,7 @@ class ArticleController extends Controller
         $article->meta_description = $request->meta_description;
         $file = $request->image;
         if ($file) {
-            $newName = time().".".$file->getClientOriginalExtension();
+            $newName = time() . "." . $file->getClientOriginalExtension();
             $file->move("images", $newName);
             $article->image = "images/$newName";
         }
@@ -72,10 +72,7 @@ class ArticleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //Find the article by ID
-        $article = Article::find($id);
 
-        // Validate the input fields
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -84,34 +81,32 @@ class ArticleController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-
-        // Handle the image upload if a new one is provided
-        if ($request->hasFile('image')) {
-            // Generate a new name for the image
-            $newImageName = time(). '.' . $request->image->getClientOriginalExtension();
-            // Move the image to the 'articles directory
-            $request->image->move(public_path('images', $newImageName));
-
-            // If the article already has an image, delete the old one
-            if ($article->image && file_exists(public_path($article->image))) {
-                unlink(public_path($article->image));
-            }
-
-            // Update the article with the new image path
-            $article->image = 'images/' . $newImageName;
+        $article = Article::find($id);
+        $file = $request->image;
+        if ($file) {
+            $newName = time() . "." . $file->getClientOriginalExtension();
+            $file->move('images', $newName);
+            unlink($article->image);
         }
 
-        // Update other fields without changing the image
-        $article->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'status' => $request->status,
-            'meta_keywords' => $request->meta_keywords,
-            'meta_description' => $request->meta_description,
-        ]);
-
-        // Sync the categories, which updates the categories associated with the article
-        $article->categories()->sync($request->categories);
+        if ($file) {
+            $article->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'status' => $request->status,
+                'meta_keywords' => $request->meta_keywords,
+                'meta_description' => $request->meta_description,
+                'image' => "images/" . $newName
+            ]);
+        } else {
+            $article->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'status' => $request->status,
+                'meta_keywords' => $request->meta_keywords,
+                'meta_description' => $request->meta_description,
+            ]);
+        }
 
         return redirect()->route("admin.article.index");
     }
