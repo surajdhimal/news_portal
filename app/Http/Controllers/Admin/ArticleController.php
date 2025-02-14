@@ -70,48 +70,61 @@ class ArticleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
 
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'status' => 'required|in:pending,approved,rejected',
-            'categories' => 'required|array',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+     public function update(Request $request, string $id)
+     {
+         // Find the article by its ID
+         $article = Article::find($id);
 
-        $article = Article::find($id);
-        $file = $request->image;
-        if ($file) {
-            $newName = time() . "." . $file->getClientOriginalExtension();
-            $file->move('images', $newName);
-            unlink($article->image);
-        }
+         // If the article doesn't exist, return with an error (optional)
+         if (!$article) {
+             return redirect()->back()->with('error', 'Article not found!');
+         }
 
-        if ($file) {
-            $article->update([
-                'title' => $request->title,
-                'description' => $request->description,
-                'status' => $request->status,
-                'meta_keywords' => $request->meta_keywords,
-                'meta_description' => $request->meta_description,
-                'image' => "images/" . $newName
-            ]);
-        } else {
-            $article->update([
-                'title' => $request->title,
-                'description' => $request->description,
-                'status' => $request->status,
-                'meta_keywords' => $request->meta_keywords,
-                'meta_description' => $request->meta_description,
-            ]);
-        }
+         // Validate the request
+         $request->validate([
+             'title' => 'required|string',
+             'description' => 'required|string',
+             'meta_keywords' => 'nullable|string',
+             'meta_description' => 'nullable|string',
+             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Make sure this matches the input name
+             'categories' => 'required|array',
+             'status' => 'required|string|in:pending,approved,rejected' // Adding validation for status
+         ]);
 
-        return redirect()->route("admin.article.index");
-    }
+         // Update article fields
+         $article->title = $request->title;
+         $article->description = $request->description;
+         $article->meta_keywords = $request->meta_keywords;
+         $article->meta_description = $request->meta_description;
+         $article->status = $request->status; // Update status as well
 
-    /**
+         // Handle image upload (if a new image is uploaded)
+         $file = $request->file('image'); // Correct input name 'image' from the form
+         if ($file) {
+             // Generate a new name for the image and save it
+             $newName = time() . "." . $file->getClientOriginalExtension();
+             $file->move(public_path('images'), $newName);
+
+             // If an old image exists, remove it (optional)
+             if ($article->image && file_exists(public_path($article->image))) {
+                 unlink(public_path($article->image));
+             }
+
+             // Save the new image path in the article
+             $article->image = "images/$newName";
+         }
+
+         // Save the article (whether the image was uploaded or not)
+         $article->save();
+
+         // Update categories
+         $article->categories()->sync($request->categories);
+
+         return redirect()->route('admin.article.index');
+     }
+
+     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
@@ -119,4 +132,9 @@ class ArticleController extends Controller
         //
     }
 }
-// 49:00
+
+
+
+
+
+

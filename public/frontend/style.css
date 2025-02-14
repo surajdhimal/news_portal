@@ -42,3 +42,7 @@ body{
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.discription figure{
+    width: 100% !important;
+}

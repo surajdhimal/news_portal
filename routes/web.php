@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Frontend\OtherController;
 use App\Http\Controllers\Frontend\PageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -23,5 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::resource("/admin/category", CategoryController::class)->names("admin.category");
     Route::resource("/admin/article", ArticleController::class)->names("admin.article");
 });
+
+Route::fallback([OtherController::class, 'page_not_found']);
 
 require __DIR__.'/auth.php';
