@@ -129,7 +129,10 @@ class ArticleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $article = Article::find($id);
+        unlink(public_path($article->image));
+        $article->delete();
+        return redirect()->back();
     }
 }
 

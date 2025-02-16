@@ -1,6 +1,6 @@
 @props(['article'])
 
-<a href="">
+<a href="{{ route('article', $article->id) }}">
     <div class="grid grid-cols-12 gap-4 items-center mt-5 shadow-md rounded-md overflow-hidden hover:shadow-xl duration-200">
         <div class="col-span-4">
             <img class="h-[90px] w-full object-cover" src="{{ asset($article->image) }}" alt="{{ $article->title }}">

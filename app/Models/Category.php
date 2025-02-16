@@ -10,6 +10,6 @@ class Category extends Model
 
     public function articles(): BelongsToMany
     {
-        return $this->belongsToMany(Article::class);
+        return $this->belongsToMany(Article::class)->where('status','approved');
     }
 }
