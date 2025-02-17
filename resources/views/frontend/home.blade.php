@@ -1,4 +1,4 @@
-<x-frontend-layout>
+<x-frontend-layout :title="'Jawaaf News'">
     <section>
         <div class="container py-10">
             <div class="grid md:grid-cols-12 gap-8">
